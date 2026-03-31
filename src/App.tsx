@@ -133,7 +133,7 @@ export default function App() {
             </div>
           )}
 
-          {!loading && !error && issues.length === 0 && (
+          {!loading && !error && !notFound && issues.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="size-12 rounded-xl bg-tertiary flex items-center justify-center mb-4">
                 <SearchMd className="size-5 text-quaternary" />
