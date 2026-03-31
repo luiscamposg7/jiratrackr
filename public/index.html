@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jira Gantt - Estado de Tickets</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+
+    header .subtitle {
+      font-size: 12px;
+      color: #8b949e;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-bar input {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-bar input:focus {
+      border-color: #58a6ff;
+    }
+
+    #input-key { width: 160px; }
+    #input-jql { flex: 1; min-width: 200px; }
+
+    .btn {
+      background: #238636;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #2ea043; }
+    .btn.secondary {
+      background: #21262d;
+      border: 1px solid #30363d;
+    }
+    .btn.secondary:hover { background: #30363d; }
+
+    .error-box {
+      background: #3d1515;
+      border: 1px solid #f85149;
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: #f85149;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      color: #8b949e;
+      padding: 40px;
+      display: none;
+    }
+
+    .loading .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #30363d;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Issue card */
+    .issue-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      overflow: hidden;
+    }
+
+    .issue-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #21262d;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .issue-key {
+      font-weight: 700;
+      color: #58a6ff;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    .issue-summary {
+      flex: 1;
+      font-size: 15px;
+      min-width: 200px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .issue-meta {
+      padding: 10px 20px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: #8b949e;
+      border-bottom: 1px solid #21262d;
+    }
+
+    .issue-meta span strong { color: #e6edf3; }
+
+    /* Gantt */
+    .gantt-wrapper {
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .gantt-legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .gantt-svg-container {
+      min-width: 600px;
+    }
+
+    svg.gantt { width: 100%; overflow: visible; }
+
+    /* Time stats */
+    .time-stats {
+      padding: 16px 20px;
+      border-top: 1px solid #21262d;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #21262d;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .stat-chip .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .stat-chip .label { color: #8b949e; }
+    .stat-chip .value { font-weight: 600; }
+
+    /* Transitions table */
+    .transitions-section {
+      padding: 0 20px 20px;
+    }
+
+    .transitions-section h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+
+    table.transitions {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table.transitions th {
+      text-align: left;
+      color: #8b949e;
+      padding: 6px 8px;
+      border-bottom: 1px solid #21262d;
+      font-weight: 500;
+    }
+
+    table.transitions td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #161b22;
+    }
+
+    table.transitions tr:last-child td { border-bottom: none; }
+
+    .arrow { color: #8b949e; margin: 0 4px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Jira Gantt</h1>
+    <div class="subtitle">Visualiza el tiempo de cada estado de tus tickets</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="search-bar">
+    <input id="input-key" type="text" placeholder="Ticket (ej: PROJ-123)" />
+    <input id="input-jql" type="text" placeholder='JQL (ej: project = PROJ AND sprint in openSprints())' />
+    <button class="btn" onclick="searchByKey()">Buscar Ticket</button>
+    <button class="btn secondary" onclick="searchByJQL()">Buscar JQL</button>
+  </div>
+
+  <div id="error-box" class="error-box"></div>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div>Cargando datos de Jira...</div>
+  </div>
+  <div id="results"></div>
+</div>
+
+<script>
+// Color palette for statuses
+const STATUS_COLORS = {
+  'To Do': '#6e7681',
+  'Open': '#6e7681',
+  'Backlog': '#6e7681',
+  'In Progress': '#58a6ff',
+  'In Review': '#a371f7',
+  'Code Review': '#a371f7',
+  'Testing': '#f0883e',
+  'QA': '#f0883e',
+  'Blocked': '#f85149',
+  'On Hold': '#f85149',
+  'Waiting': '#d29922',
+  'Pending': '#d29922',
+  'Done': '#3fb950',
+  'Closed': '#3fb950',
+  'Resolved': '#3fb950',
+  'Cancelled': '#484f58',
+};
+
+function getStatusColor(status) {
+  const key = Object.keys(STATUS_COLORS).find(k =>
+    status.toLowerCase().includes(k.toLowerCase())
+  );
+  return key ? STATUS_COLORS[key] : '#58a6ff';
+}
+
+function fmtDuration(ms) {
+  const totalMins = Math.floor(ms / 60000);
+  if (totalMins < 60) return `${totalMins}m`;
+  const hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  if (hours < 24) return mins ? `${hours}h ${mins}m` : `${hours}h`;
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  return remHours ? `${days}d ${remHours}h` : `${days}d`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+async function apiFetch(url) {
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+async function searchByKey() {
+  const key = document.getElementById('input-key').value.trim();
+  if (!key) return;
+  setLoading(true);
+  try {
+    const data = await apiFetch(`/api/issue/${encodeURIComponent(key)}`);
+    renderResults([data]);
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function searchByJQL() {
+  const jql = document.getElementById('input-jql').value.trim();
+  if (!jql) return;
+  setLoading(true);
+  try {
+    const data = await apiFetch(`/api/search?jql=${encodeURIComponent(jql)}&maxResults=20`);
+    renderResults(data.issues);
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// Enter key support
+document.getElementById('input-key').addEventListener('keydown', e => e.key === 'Enter' && searchByKey());
+document.getElementById('input-jql').addEventListener('keydown', e => e.key === 'Enter' && searchByJQL());
+
+function setLoading(v) {
+  document.getElementById('loading').style.display = v ? 'block' : 'none';
+  document.getElementById('error-box').style.display = 'none';
+  if (v) document.getElementById('results').innerHTML = '';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = `Error: ${msg}`;
+  el.style.display = 'block';
+}
+
+function renderResults(issues) {
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+  if (!issues || issues.length === 0) {
+    container.innerHTML = '<p style="color:#8b949e;text-align:center;padding:40px">No se encontraron tickets.</p>';
+    return;
+  }
+  issues.forEach(issue => container.appendChild(buildIssueCard(issue)));
+}
+
+function buildIssueCard(issue) {
+  const card = document.createElement('div');
+  card.className = 'issue-card';
+
+  const totalMs = issue.segments.reduce((a, s) => a + s.durationMs, 0);
+
+  // Unique statuses for legend
+  const uniqueStatuses = [...new Set(issue.segments.map(s => s.status))];
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'issue-header';
+  header.innerHTML = `
+    <span class="issue-key">${issue.key}</span>
+    <span class="issue-summary">${escHtml(issue.summary)}</span>
+    <span class="badge" style="background:${getStatusColor(issue.currentStatus)}22;color:${getStatusColor(issue.currentStatus)}">${escHtml(issue.currentStatus)}</span>
+  `;
+  card.appendChild(header);
+
+  // Meta
+  const meta = document.createElement('div');
+  meta.className = 'issue-meta';
+  meta.innerHTML = `
+    <span><strong>Tipo:</strong> ${escHtml(issue.issueType || '—')}</span>
+    <span><strong>Prioridad:</strong> ${escHtml(issue.priority || '—')}</span>
+    <span><strong>Asignado:</strong> ${escHtml(issue.assignee)}</span>
+    <span><strong>Creado:</strong> ${fmtDate(issue.created)}</span>
+    ${issue.resolved ? `<span><strong>Resuelto:</strong> ${fmtDate(issue.resolved)}</span>` : ''}
+    <span><strong>Tiempo total:</strong> ${fmtDuration(totalMs)}</span>
+  `;
+  card.appendChild(meta);
+
+  // Gantt
+  const ganttWrapper = document.createElement('div');
+  ganttWrapper.className = 'gantt-wrapper';
+
+
+  // SVG Gantt
+  const svgContainer = document.createElement('div');
+  svgContainer.className = 'gantt-svg-container';
+  svgContainer.innerHTML = buildGanttSVG(issue.segments, totalMs);
+  ganttWrapper.appendChild(svgContainer);
+  card.appendChild(ganttWrapper);
+
+  // Time stats per status
+  const stats = document.createElement('div');
+  stats.className = 'time-stats';
+  Object.entries(issue.timeByStatus)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([status, ms]) => {
+      const pct = ((ms / totalMs) * 100).toFixed(1);
+      stats.innerHTML += `
+        <div class="stat-chip">
+          <div class="dot" style="background:${getStatusColor(status)}"></div>
+          <span class="label">${escHtml(status)}</span>
+          <span class="value">${fmtDuration(ms)}</span>
+          <span style="color:#484f58">${pct}%</span>
+        </div>`;
+    });
+  card.appendChild(stats);
+
+  // Transitions table
+  if (issue.transitions.length > 0) {
+    const section = document.createElement('div');
+    section.className = 'transitions-section';
+    section.innerHTML = `
+      <h4>Historial de Transiciones</h4>
+      <table class="transitions">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Transición</th>
+            <th>Por</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${issue.transitions.map(t => `
+            <tr>
+              <td>${fmtDate(t.at)}</td>
+              <td>
+                <span class="badge" style="background:${getStatusColor(t.from)}22;color:${getStatusColor(t.from)}">${escHtml(t.from)}</span>
+                <span class="arrow">→</span>
+                <span class="badge" style="background:${getStatusColor(t.to)}22;color:${getStatusColor(t.to)}">${escHtml(t.to)}</span>
+              </td>
+              <td style="color:#8b949e">${escHtml(t.author)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    card.appendChild(section);
+  }
+
+  return card;
+}
+
+function buildGanttSVG(segments, totalMs) {
+  const LABEL_W = 180;   // width of the left label column
+  const CHART_W = 720;   // width of the bar area
+  const W = LABEL_W + CHART_W;
+  const ROW_H = 40;      // height per status row
+  const BAR_H = 26;      // bar height inside the row
+  const BAR_PADDING = (ROW_H - BAR_H) / 2;
+  const AXIS_H = 24;     // bottom axis height
+
+  // Timeline bounds
+  const startTs = new Date(segments[0].start).getTime();
+  const endTs = segments[segments.length - 1].end
+    ? new Date(segments[segments.length - 1].end).getTime()
+    : Date.now();
+  const spanMs = endTs - startTs;
+
+  // Build ordered unique status list (preserving first-seen order)
+  const statusOrder = [];
+  segments.forEach(seg => {
+    if (!statusOrder.includes(seg.status)) statusOrder.push(seg.status);
+  });
+  const numRows = statusOrder.length;
+  const H = numRows * ROW_H + AXIS_H + 8;
+
+  function tsToX(ts) {
+    return LABEL_W + ((ts - startTs) / spanMs) * CHART_W;
+  }
+
+  let rowBg = '';
+  let gridLines = '';
+  let bars = '';
+  let rowLabels = '';
+
+  // Row backgrounds + label column
+  statusOrder.forEach((status, rowIdx) => {
+    const rowY = rowIdx * ROW_H;
+    const color = getStatusColor(status);
+
+    // Alternating row background
+    rowBg += `
+      <rect x="0" y="${rowY}" width="${W}" height="${ROW_H}"
+            fill="${rowIdx % 2 === 0 ? '#0d1117' : '#161b22'}" />`;
+
+    // Left label background
+    rowBg += `
+      <rect x="0" y="${rowY}" width="${LABEL_W}" height="${ROW_H}"
+            fill="${color}18" />`;
+
+    // Color accent strip
+    rowBg += `
+      <rect x="0" y="${rowY + BAR_PADDING}" width="4" height="${BAR_H}"
+            fill="${color}" rx="2" />`;
+
+    // Status label text
+    const labelText = status.length > 22 ? status.slice(0, 20) + '…' : status;
+    rowLabels += `
+      <text x="12" y="${rowY + ROW_H / 2}"
+            dominant-baseline="middle"
+            font-size="12" fill="#e6edf3" font-family="system-ui" font-weight="500">
+        ${escHtml(labelText)}
+      </text>`;
+
+    // Separator line
+    rowBg += `
+      <line x1="0" y1="${rowY + ROW_H}" x2="${W}" y2="${rowY + ROW_H}"
+            stroke="#21262d" stroke-width="1"/>`;
+  });
+
+  // Vertical grid lines (time axis ticks)
+  const tickCount = 6;
+  let axisLabels = '';
+  for (let i = 0; i <= tickCount; i++) {
+    const frac = i / tickCount;
+    const tx = (LABEL_W + frac * CHART_W).toFixed(2);
+    const date = new Date(startTs + frac * spanMs);
+    const label = date.toLocaleDateString('es', { month: 'short', day: 'numeric' });
+
+    gridLines += `
+      <line x1="${tx}" y1="0" x2="${tx}" y2="${numRows * ROW_H}"
+            stroke="#21262d" stroke-width="1" stroke-dasharray="3,3"/>`;
+
+    axisLabels += `
+      <text x="${tx}" y="${numRows * ROW_H + 16}"
+            text-anchor="middle" font-size="10"
+            fill="#6e7681" font-family="system-ui">${label}</text>`;
+  }
+
+  // Bars — one bar per segment, placed on its status row
+  segments.forEach(seg => {
+    const rowIdx = statusOrder.indexOf(seg.status);
+    const rowY = rowIdx * ROW_H;
+    const color = getStatusColor(seg.status);
+
+    const x1 = tsToX(new Date(seg.start).getTime());
+    const x2 = tsToX(seg.end ? new Date(seg.end).getTime() : Date.now());
+    const barW = Math.max(x2 - x1, 2);
+    const barY = rowY + BAR_PADDING;
+    const dur = fmtDuration(seg.durationMs);
+    const tooltip = `${escHtml(seg.status)}: ${dur}\n${fmtDate(seg.start)} → ${seg.end ? fmtDate(seg.end) : 'Ahora'}`;
+
+    bars += `
+      <rect x="${x1.toFixed(2)}" y="${barY}" width="${barW.toFixed(2)}" height="${BAR_H}"
+            fill="${color}" rx="4" opacity="${seg.isActive ? 1 : 0.88}">
+        <title>${tooltip}</title>
+      </rect>`;
+
+    // Duration label inside bar if wide enough
+    if (barW > 52) {
+      bars += `
+        <text x="${(x1 + barW / 2).toFixed(2)}" y="${(barY + BAR_H / 2).toFixed(2)}"
+              text-anchor="middle" dominant-baseline="middle"
+              font-size="11" fill="#fff" font-family="system-ui" font-weight="600"
+              style="pointer-events:none">
+          ${dur}
+        </text>`;
+    }
+
+    // Active pulse dot
+    if (seg.isActive) {
+      bars += `
+        <circle cx="${(x2 - 6).toFixed(2)}" cy="${(barY + BAR_H / 2).toFixed(2)}" r="4"
+                fill="#fff" opacity="0.9">
+          <animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.5s" repeatCount="indefinite"/>
+        </circle>`;
+    }
+  });
+
+  // Vertical "now" line
+  const nowX = tsToX(Date.now()).toFixed(2);
+  const nowLine = Date.now() >= startTs && Date.now() <= endTs + 86400000 ? `
+    <line x1="${nowX}" y1="0" x2="${nowX}" y2="${numRows * ROW_H}"
+          stroke="#f0883e" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+    <text x="${nowX}" y="${numRows * ROW_H + 16}" text-anchor="middle" font-size="9"
+          fill="#f0883e" font-family="system-ui">HOY</text>` : '';
+
+  return `
+    <svg class="gantt" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"
+         style="display:block;width:100%">
+      ${rowBg}
+      ${gridLines}
+      ${nowLine}
+      ${bars}
+      ${rowLabels}
+      ${axisLabels}
+      <!-- Label/chart divider -->
+      <line x1="${LABEL_W}" y1="0" x2="${LABEL_W}" y2="${numRows * ROW_H}"
+            stroke="#30363d" stroke-width="1.5"/>
+    </svg>`;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
