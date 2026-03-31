@@ -148,6 +148,19 @@ export function GanttChart({ segments }: GanttChartProps) {
           setHoveredIdx(null)
           setTooltip(null)
         }}>
+        {/* Glow halo for active segments */}
+        {seg.isActive && !prefersReducedMotion && (
+          <rect
+            x={x1 - 3} y={barY - 3} width={barW + 6} height={BAR_H + 6}
+            fill={color} rx={7}
+            style={{
+              filter: 'blur(7px)',
+              pointerEvents: 'none',
+              animation: 'gantt-glow 1.8s ease-in-out infinite',
+              opacity: isDimmed ? 0.1 : 0.3,
+            }}
+          />
+        )}
         <rect
           x={x1} y={barY} width={barW} height={BAR_H}
           fill={color} rx={5}
