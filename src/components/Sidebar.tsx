@@ -32,10 +32,14 @@ export function Sidebar({ dark, onToggleDark }: SidebarProps) {
       >
         <div className="flex items-center gap-3 overflow-hidden">
           <div
-            className="size-9 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+            className="size-9 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: 'var(--color-brand-500)' }}
           >
-            G
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10C2 10 5.5 4 10 4C14.5 4 18 10 18 10C18 10 14.5 16 10 16C5.5 16 2 10 2 10Z" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="10" cy="10" r="2.8" stroke="white" strokeWidth="1.6"/>
+              <circle cx="10" cy="10" r="1.2" fill="white"/>
+            </svg>
           </div>
           {expanded && (
             <div className="overflow-hidden">
