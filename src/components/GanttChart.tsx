@@ -63,6 +63,9 @@ export function GanttChart({ segments }: GanttChartProps) {
     if (!statusOrder.includes(seg.status)) statusOrder.push(seg.status)
   }
   const numRows = statusOrder.length
+
+  // Statuses that have at least one active segment — glow applies to ALL bars of that status
+  const activeStatuses = new Set(segments.filter(s => s.isActive).map(s => s.status))
   const svgH = numRows * ROW_H + AXIS_H
 
   function tsToX(ts: number): number {
@@ -148,18 +151,18 @@ export function GanttChart({ segments }: GanttChartProps) {
           setHoveredIdx(null)
           setTooltip(null)
         }}>
-        {/* Glow halo for active segments */}
-        {seg.isActive && !prefersReducedMotion && (
-          <rect
-            x={x1 - 3} y={barY - 3} width={barW + 6} height={BAR_H + 6}
-            fill={color} rx={7}
-            style={{
-              filter: 'blur(7px)',
-              pointerEvents: 'none',
-              animation: 'gantt-glow 1.8s ease-in-out infinite',
-              opacity: isDimmed ? 0.1 : 0.3,
-            }}
-          />
+        {/* Glow halo — all bars of the currently active status */}
+        {activeStatuses.has(seg.status) && !prefersReducedMotion && (
+          <g opacity={isDimmed ? 0.15 : 1} style={{ pointerEvents: 'none' }}>
+            <rect
+              x={x1 - 4} y={barY - 4} width={barW + 8} height={BAR_H + 8}
+              fill={color} rx={8}
+              style={{
+                filter: 'blur(9px)',
+                animation: 'gantt-glow 1.8s ease-in-out infinite',
+              }}
+            />
+          </g>
         )}
         <rect
           x={x1} y={barY} width={barW} height={BAR_H}
