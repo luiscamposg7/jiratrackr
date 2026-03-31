@@ -61,7 +61,7 @@ export default function App() {
                   placeholder="ej: BA-4351"
                   onKeyDown={(e: any) => e.key === 'Enter' && search()}
                   icon={SearchMd}
-                  shortcut="↵"
+                  shortcut="Enter ↵"
                 />
               </TextField>
             </div>
