@@ -1,17 +1,20 @@
 export function fmtDuration(ms: number): string {
   const totalMins = Math.floor(ms / 60000)
-  if (totalMins < 60) return `${totalMins}m`
+  if (totalMins < 60) return `${totalMins} min`
   const hours = Math.floor(totalMins / 60)
   const mins = totalMins % 60
-  if (hours < 24) return mins ? `${hours}h ${mins}m` : `${hours}h`
+  if (hours < 24) return mins ? `${hours}h ${mins}min` : `${hours} horas`
   const days = Math.floor(hours / 24)
   const remHours = hours % 24
-  return remHours ? `${days}d ${remHours}h` : `${days}d`
+  return remHours ? `${days} días ${remHours}h` : `${days} días`
 }
 
 export function fmtDate(iso: string | null): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' })
+  return new Date(iso).toLocaleString('es', {
+    day: 'numeric', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
 }
 
 // Maps a Jira status string to an Untitled UI badge color
@@ -59,4 +62,19 @@ const SVG_COLORS: Record<StatusBadgeColor, string> = {
 
 export function getStatusSvgColor(status: string): string {
   return SVG_COLORS[getStatusBadgeColor(status)]
+}
+
+export function fmtRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 2) return 'ahora'
+  if (mins < 60) return `hace ${mins} minuto${mins !== 1 ? 's' : ''}`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `hace ${hours} hora${hours !== 1 ? 's' : ''}`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `hace ${days} día${days !== 1 ? 's' : ''}`
+  const months = Math.floor(days / 30)
+  if (months < 12) return `hace ${months} mes${months > 1 ? 'es' : ''}`
+  const years = Math.floor(months / 12)
+  return `hace ${years} año${years > 1 ? 's' : ''}`
 }
