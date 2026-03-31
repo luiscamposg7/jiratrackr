@@ -18,29 +18,17 @@ function generateTicks(startTs: number, endTs: number, spanDays: number): Date[]
 
   let step: { unit: 'day' | 'week' | 'month'; every: number }
 
-  step = { unit: 'week', every: 1 }
+  step = { unit: 'day', every: 5 }
 
-  // Align first tick to the start of the interval
+  // Align first tick to a multiple of 5 from the start date
   const cursor = new Date(start)
   cursor.setHours(0, 0, 0, 0)
-  if (step.unit === 'week') {
-    const day = cursor.getDay()
-    cursor.setDate(cursor.getDate() - day + (day === 0 ? -6 : 1)) // align to Monday
-  } else if (step.unit === 'month') {
-    cursor.setDate(1)
-  }
 
   while (cursor.getTime() <= endTs + 86400000) {
     if (cursor.getTime() >= startTs - 86400000) {
       ticks.push(new Date(cursor))
     }
-    if (step.unit === 'day') {
-      cursor.setDate(cursor.getDate() + step.every)
-    } else if (step.unit === 'week') {
-      cursor.setDate(cursor.getDate() + 7 * step.every)
-    } else {
-      cursor.setMonth(cursor.getMonth() + step.every)
-    }
+    cursor.setDate(cursor.getDate() + step.every)
   }
 
   return ticks
@@ -152,11 +140,20 @@ export function GanttChart({ segments }: GanttChartProps) {
           fill={color} rx={5} opacity={seg.isActive ? 1 : 0.88}>
           <title>{tooltip}</title>
         </rect>
-        {barW > 60 && (
+        {barW >= 28 ? (
+          // Label inside the bar
           <text x={x1 + barW / 2} y={barY + BAR_H / 2}
             textAnchor="middle" dominantBaseline="middle"
-            fontSize={11} fontFamily="var(--font-body)" fontWeight={600}
+            fontSize={barW < 50 ? 9 : 11} fontFamily="var(--font-body)" fontWeight={600}
             fill="#fff" style={{ pointerEvents: 'none' }}>
+            {dur}
+          </text>
+        ) : (
+          // Label outside (right of bar) for tiny bars
+          <text x={x1 + barW + 4} y={barY + BAR_H / 2}
+            textAnchor="start" dominantBaseline="middle"
+            fontSize={9} fontFamily="var(--font-body)" fontWeight={600}
+            fill={color} style={{ pointerEvents: 'none' }}>
             {dur}
           </text>
         )}
