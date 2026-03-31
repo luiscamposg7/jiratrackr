@@ -26,8 +26,14 @@ module.exports = async function handler(req, res) {
     );
 
     if (!response.ok) {
+      if (response.status === 404) {
+        return res.status(404).json({ error: `No se encontró ningún ticket con el ID "${issueKey}". Verifica que el ID sea correcto.` });
+      }
+      if (response.status === 401 || response.status === 403) {
+        return res.status(response.status).json({ error: 'Sin acceso a Jira. Verifica las credenciales configuradas.' });
+      }
       const text = await response.text();
-      return res.status(response.status).json({ error: `Jira API error ${response.status}: ${text}` });
+      return res.status(response.status).json({ error: `Error al consultar Jira (${response.status})` });
     }
 
     const data = await response.json();

@@ -33,16 +33,20 @@ export default function App() {
   const [issues, setIssues] = useState<IssueGantt[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [notFound, setNotFound] = useState(false)
 
   async function search() {
     const key = keyInput.trim()
     if (!key) return
     setLoading(true)
     setError(null)
+    setNotFound(false)
+    setIssues([])
     try {
       const res = await fetch(`/api/issue/${encodeURIComponent(key)}`)
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      if (res.status === 404) { setNotFound(true); return }
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`)
       setIssues([data])
     } catch (e: any) {
       setError(e.message)
@@ -57,16 +61,6 @@ export default function App() {
 
       {/* Main content — offset by sidebar collapsed width */}
       <div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: SIDEBAR_COLLAPSED }}>
-        {/* Header */}
-        <header className="border-b border-primary bg-secondary py-4">
-          <div className="max-w-[1140px] mx-auto flex items-center gap-3">
-            <div>
-              <h1 className="text-sm font-semibold text-primary leading-tight">Jira Gantt</h1>
-              <p className="text-xs text-tertiary leading-tight">Prestamype · Historial de estados</p>
-            </div>
-          </div>
-        </header>
-
         {/* Search area */}
         <div className="border-b border-primary bg-secondary/50 py-10">
           <div className="max-w-[1140px] mx-auto flex flex-col items-center gap-4">
@@ -93,6 +87,20 @@ export default function App() {
 
         {/* Content */}
         <main className="max-w-[1140px] mx-auto py-6 w-full">
+          {notFound && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="size-12 rounded-xl bg-tertiary flex items-center justify-center mb-4">
+                <svg className="size-5 text-quaternary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+              </div>
+              <p className="text-md font-semibold text-primary mb-1">Ticket no encontrado</p>
+              <p className="text-sm text-tertiary max-w-xs">
+                No existe ningún ticket con el ID <span className="font-mono font-semibold text-primary">{keyInput.trim().toUpperCase()}</span>. Verifica que el ID sea correcto.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="mb-5 rounded-xl bg-error-primary/10 ring-1 ring-error-primary/30 px-4 py-3 text-sm text-error-primary">
               {error}
