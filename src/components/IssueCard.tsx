@@ -148,7 +148,7 @@ export function IssueCard({ issue }: IssueCardProps) {
               <span className="text-sm font-semibold text-primary">Activo ahora</span>
             </div>
           ) : (
-            <span className="text-display-xs font-bold text-primary leading-none">
+            <span className="text-sm font-semibold text-primary">
               {fmtDate(endDate)}
             </span>
           )}

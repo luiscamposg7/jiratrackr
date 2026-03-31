@@ -143,9 +143,11 @@ export function GanttChart({ segments }: GanttChartProps) {
           fill="#17b26a">
           FIN
         </text>
+        <rect x={ex - 28} y={axisY + 6} width={56} height={18} rx={4}
+          fill="#17b26a" opacity={0.15} />
         <text x={ex} y={axisY + 18}
           textAnchor="middle"
-          fontSize={12} fontFamily="var(--font-body)" fontWeight={600}
+          fontSize={12} fontFamily="var(--font-body)" fontWeight={700}
           fill="#17b26a">
           {label}
         </text>
