@@ -13,7 +13,7 @@
     "jsx": "react-jsx",
     "strict": false,
     "paths": {
-      "@/*": ["/Users/luiscg/Downloads/react-main/*"]
+      "@/*": ["./src/ds/*"]
     }
   },
   "include": ["src", "vite.config.ts"]

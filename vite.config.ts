@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve('/Users/luiscg/Downloads/react-main'),
+      '@': path.resolve(__dirname, 'src/ds'),
     },
   },
   server: {

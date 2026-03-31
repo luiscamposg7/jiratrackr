@@ -2,11 +2,11 @@
 @import "tailwindcss";
 
 /* Design tokens (pure CSS variables, no Tailwind inside) */
-@import "/Users/luiscg/Downloads/react-main/styles/theme.css";
-@import "/Users/luiscg/Downloads/react-main/styles/typography.css";
+@import "./ds/styles/theme.css";
+@import "./ds/styles/typography.css";
 
 /* Scan design system components for Tailwind classes */
-@source "/Users/luiscg/Downloads/react-main/components";
+@source "./ds/components";
 
 /* Same plugins as the design system */
 @plugin "@tailwindcss/typography";
