@@ -9,7 +9,7 @@ const LABEL_W = 188
 const ROW_H = 44
 const BAR_H = 28
 const BAR_PAD = (ROW_H - BAR_H) / 2
-const AXIS_H = 32
+const AXIS_H = 52        // taller to fit rotated labels
 const PX_PER_DAY = 24   // minimum pixels per day — drives scroll width
 
 function generateTicks(startTs: number, endTs: number, spanDays: number): Date[] {
@@ -18,12 +18,7 @@ function generateTicks(startTs: number, endTs: number, spanDays: number): Date[]
 
   let step: { unit: 'day' | 'week' | 'month'; every: number }
 
-  if (spanDays <= 10)       step = { unit: 'day',   every: 1  }
-  else if (spanDays <= 21)  step = { unit: 'day',   every: 2  }
-  else if (spanDays <= 45)  step = { unit: 'week',  every: 1  }
-  else if (spanDays <= 120) step = { unit: 'week',  every: 2  }
-  else if (spanDays <= 365) step = { unit: 'month', every: 1  }
-  else                      step = { unit: 'month', every: 2  }
+  step = { unit: 'week', every: 1 }
 
   // Align first tick to the start of the interval
   const cursor = new Date(start)
@@ -86,21 +81,32 @@ export function GanttChart({ segments }: GanttChartProps) {
   const gridLines: React.ReactNode[] = []
   const axisLabels: React.ReactNode[] = []
 
+  const axisY = numRows * ROW_H  // y where axis starts
+
   ticks.forEach((date, i) => {
     const tx = tsToX(date.getTime())
-    if (tx < 0 || tx > CHART_W + 1) return
+    if (tx < 4 || tx > CHART_W - 4) return
     gridLines.push(
       <line key={`g${i}`}
-        x1={tx} y1={0} x2={tx} y2={numRows * ROW_H}
+        x1={tx} y1={0} x2={tx} y2={axisY}
         stroke="var(--color-border-secondary)" strokeWidth={1}
         strokeDasharray="3 3" opacity={0.6} />
     )
+    // Tick mark
+    axisLabels.push(
+      <line key={`tm${i}`}
+        x1={tx} y1={axisY} x2={tx} y2={axisY + 5}
+        stroke="var(--color-border-primary)" strokeWidth={1} />
+    )
+    // Rotated label
     axisLabels.push(
       <text key={`a${i}`}
-        x={tx} y={numRows * ROW_H + 16}
-        textAnchor="middle" fontSize={10}
+        transform={`rotate(-40, ${tx}, ${axisY + 8})`}
+        x={tx} y={axisY + 8}
+        textAnchor="end"
+        fontSize={11}
         fontFamily="var(--font-body)"
-        fill="var(--color-text-quaternary)">
+        fill="var(--color-text-tertiary)">
         {fmtTickLabel(date, spanDays)}
       </text>
     )
@@ -114,9 +120,12 @@ export function GanttChart({ segments }: GanttChartProps) {
       <g>
         <line x1={nx} y1={0} x2={nx} y2={numRows * ROW_H}
           stroke="#f79009" strokeWidth={1.5} strokeDasharray="4 3" opacity={0.8} />
-        <text x={nx} y={numRows * ROW_H + 16}
-          textAnchor="middle" fontSize={9}
-          fontFamily="var(--font-body)" fontWeight={700}
+        {/* "HOY" badge above the bars */}
+        <rect x={nx - 14} y={2} width={28} height={16} rx={4}
+          fill="#f79009" opacity={0.15} />
+        <text x={nx} y={13}
+          textAnchor="middle"
+          fontSize={9} fontFamily="var(--font-body)" fontWeight={700}
           fill="#f79009">
           HOY
         </text>

@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(git -C /Users/luiscg/jiragantt add -A)",
+      "Bash(git -C /Users/luiscg/jiragantt commit -m \"Fix Gantt axis: rotated labels, weekly ticks, HOY badge above bars\")"
     ]
   }
 }
