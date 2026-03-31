@@ -128,8 +128,8 @@ export function GanttChart({ segments }: GanttChartProps) {
   // ── End date line (only when ticket is resolved) ─────────────────────────
   const lastEnd = segments[segments.length - 1].end
   const endLine = lastEnd ? (() => {
-    const ex = tsToX(new Date(lastEnd).getTime())
-    if (ex < 4 || ex > CHART_W - 4) return null
+    // Clamp to right edge — endTs maps to exactly CHART_W, show it there
+    const ex = Math.min(tsToX(new Date(lastEnd).getTime()), CHART_W - 1)
     const label = new Date(lastEnd).toLocaleDateString('es', { day: 'numeric', month: 'short' })
     return (
       <g>

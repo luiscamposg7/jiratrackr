@@ -13,7 +13,7 @@ export function fmtDate(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleString('es', {
     day: 'numeric', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    hour: 'numeric', minute: '2-digit', hour12: true,
   })
 }
 
