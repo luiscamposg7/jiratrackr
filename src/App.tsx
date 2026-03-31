@@ -70,8 +70,8 @@ export default function App() {
         {/* Search area */}
         <div className="border-b border-primary bg-secondary/50 py-10">
           <div className="max-w-[1140px] mx-auto flex flex-col items-center gap-4">
-            <p className="text-display-xs font-semibold text-primary">Buscar ticket</p>
-            <p className="text-sm text-tertiary -mt-2">Ingresa el ID del ticket para ver su historial de estados</p>
+            <p className="text-display-sm font-semibold text-primary">Buscar ticket</p>
+            <p className="text-md text-tertiary -mt-2">Ingresa el ID del ticket para ver su historial de estados</p>
             <div className="flex gap-3 items-center w-full max-w-lg">
               <div className="flex-1">
                 <TextField value={keyInput} onChange={setKeyInput}>
@@ -130,8 +130,8 @@ export default function App() {
               <div className="size-12 rounded-xl bg-tertiary flex items-center justify-center mb-4">
                 <SearchMd className="size-5 text-quaternary" />
               </div>
-              <p className="text-sm font-medium text-secondary mb-1">Busca un ticket de Jira</p>
-              <p className="text-xs text-tertiary max-w-xs">
+              <p className="text-md font-medium text-secondary mb-1">Busca un ticket de Jira</p>
+              <p className="text-sm text-tertiary max-w-xs">
                 Ingresa el ID del ticket como <span className="font-mono text-primary">BA-4351</span> y presiona Enter o Buscar.
               </p>
             </div>
