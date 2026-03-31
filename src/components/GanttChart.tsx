@@ -55,7 +55,7 @@ export function GanttChart({ segments }: GanttChartProps) {
   const spanMs = Math.max(endTs - startTs, 1)
   const spanDays = spanMs / 86400000
 
-  const CHART_W = Math.max(600, Math.ceil(spanDays * PX_PER_DAY))
+  const CHART_W = Math.max(600, Math.ceil(spanDays * PX_PER_DAY)) + 80
 
   // Ordered unique statuses (first-seen order)
   const statusOrder: string[] = []
