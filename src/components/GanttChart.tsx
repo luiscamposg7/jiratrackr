@@ -125,6 +125,34 @@ export function GanttChart({ segments }: GanttChartProps) {
     )
   })() : null
 
+  // ── End date line (only when ticket is resolved) ─────────────────────────
+  const lastEnd = segments[segments.length - 1].end
+  const endLine = lastEnd ? (() => {
+    const ex = tsToX(new Date(lastEnd).getTime())
+    if (ex < 4 || ex > CHART_W - 4) return null
+    const label = new Date(lastEnd).toLocaleDateString('es', { day: 'numeric', month: 'short' })
+    return (
+      <g>
+        <line x1={ex} y1={0} x2={ex} y2={numRows * ROW_H}
+          stroke="#17b26a" strokeWidth={1.5} strokeDasharray="4 3" opacity={0.9} />
+        <rect x={ex - 20} y={2} width={40} height={16} rx={4}
+          fill="#17b26a" opacity={0.15} />
+        <text x={ex} y={13}
+          textAnchor="middle"
+          fontSize={9} fontFamily="var(--font-body)" fontWeight={700}
+          fill="#17b26a">
+          FIN
+        </text>
+        <text x={ex} y={axisY + 18}
+          textAnchor="middle"
+          fontSize={12} fontFamily="var(--font-body)" fontWeight={600}
+          fill="#17b26a">
+          {label}
+        </text>
+      </g>
+    )
+  })() : null
+
   // ── Bars ──────────────────────────────────────────────────────────────────
   const bars: ReactNode[] = []
   segments.forEach((seg, si) => {
@@ -271,6 +299,7 @@ export function GanttChart({ segments }: GanttChartProps) {
             {rowDividers}
             {gridLines}
             {nowLine}
+            {endLine}
             {bars}
             {axisLabels}
           </svg>
