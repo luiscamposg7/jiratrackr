@@ -94,7 +94,7 @@ export function GanttChart({ segments }: GanttChartProps) {
       <text key={`a${i}`}
         x={tx} y={axisY + 18}
         textAnchor="middle"
-        fontSize={11}
+        fontSize={12}
         fontFamily="var(--font-body)"
         fill="var(--color-text-tertiary)">
         {fmtTickLabel(date)}
@@ -160,7 +160,7 @@ export function GanttChart({ segments }: GanttChartProps) {
         {barW >= 28 ? (
           <text x={x1 + barW / 2} y={barY + BAR_H / 2}
             textAnchor="middle" dominantBaseline="middle"
-            fontSize={barW < 50 ? 9 : 11} fontFamily="var(--font-body)" fontWeight={600}
+            fontSize={barW < 50 ? 10 : 12} fontFamily="var(--font-body)" fontWeight={600}
             fill="#fff" opacity={isDimmed ? 0.45 : 1}
             style={{ pointerEvents: 'none', transition: 'opacity 150ms ease' }}>
             {dur}
@@ -168,7 +168,7 @@ export function GanttChart({ segments }: GanttChartProps) {
         ) : (
           <text x={x1 + barW + 4} y={barY + BAR_H / 2}
             textAnchor="start" dominantBaseline="middle"
-            fontSize={9} fontFamily="var(--font-body)" fontWeight={600}
+            fontSize={10} fontFamily="var(--font-body)" fontWeight={600}
             fill={color} opacity={isDimmed ? 0.45 : 1}
             style={{ pointerEvents: 'none', transition: 'opacity 150ms ease' }}>
             {dur}
@@ -300,10 +300,10 @@ export function GanttChart({ segments }: GanttChartProps) {
               </span>
             )}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 4 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 4 }}>
             {fmtDuration(tooltip.seg.durationMs)}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', lineHeight: 1.5 }}>
             <div>{fmtDate(tooltip.seg.start)}</div>
             <div>{tooltip.seg.end ? fmtDate(tooltip.seg.end) : 'Ahora →'}</div>
           </div>
