@@ -289,9 +289,9 @@ export function GanttChart({ segments }: GanttChartProps) {
             {rowStripes}
             {rowDividers}
             {gridLines}
+            {bars}
             {nowLine}
             {endLine}
-            {bars}
             {axisLabels}
           </svg>
         </div>
