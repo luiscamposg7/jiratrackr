@@ -60,14 +60,10 @@ export function getStatusSvgColor(status: string): string {
 }
 
 export function fmtRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 2) return 'ahora'
-  if (mins < 60) return `hace ${mins} minuto${mins !== 1 ? 's' : ''}`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `hace ${hours} hora${hours !== 1 ? 's' : ''}`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `hace ${days} día${days !== 1 ? 's' : ''}`
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
+  if (days === 0) return 'hoy'
+  if (days === 1) return 'hace 1 día'
+  if (days < 30) return `hace ${days} días`
   const months = Math.floor(days / 30)
   if (months < 12) return `hace ${months} mes${months > 1 ? 'es' : ''}`
   const years = Math.floor(months / 12)
