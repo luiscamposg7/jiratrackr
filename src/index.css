@@ -28,11 +28,6 @@ body {
     scrollbar-width: none;
 }
 
-@keyframes gantt-glow {
-  0%, 100% { opacity: 0.3; }
-  50%       { opacity: 0.75; }
-}
-
 @utility scrollbar-hover {
     &::-webkit-scrollbar { height: 6px; }
     &::-webkit-scrollbar-track { background: transparent; }

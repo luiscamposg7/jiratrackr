@@ -182,19 +182,6 @@ export function GanttChart({ segments }: GanttChartProps) {
           setHoveredIdx(null)
           setTooltip(null)
         }}>
-        {/* Glow halo — all bars of the currently active status */}
-        {activeStatuses.has(seg.status) && !prefersReducedMotion && (
-          <g opacity={isDimmed ? 0.15 : 1} style={{ pointerEvents: 'none' }}>
-            <rect
-              x={x1 - 4} y={barY - 4} width={barW + 8} height={BAR_H + 8}
-              fill={color} rx={8}
-              style={{
-                filter: 'blur(9px)',
-                animation: 'gantt-glow 1.8s ease-in-out infinite',
-              }}
-            />
-          </g>
-        )}
         <rect
           x={x1} y={barY} width={barW} height={BAR_H}
           fill={color} rx={5}
