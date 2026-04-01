@@ -55,7 +55,9 @@ export function GanttChart({ segments }: GanttChartProps) {
   const spanMs = Math.max(endTs - startTs, 1)
   const spanDays = spanMs / 86400000
 
-  const CHART_W = Math.max(600, Math.ceil(spanDays * PX_PER_DAY)) + 80
+  // CONTENT_W = data area; SVG_W adds trailing space so end labels are fully visible
+  const CONTENT_W = Math.max(600, Math.ceil(spanDays * PX_PER_DAY))
+  const CHART_W = CONTENT_W + 80
 
   // Ordered unique statuses (first-seen order)
   const statusOrder: string[] = []
@@ -69,7 +71,7 @@ export function GanttChart({ segments }: GanttChartProps) {
   const svgH = numRows * ROW_H + AXIS_H
 
   function tsToX(ts: number): number {
-    return ((ts - startTs) / spanMs) * CHART_W
+    return ((ts - startTs) / spanMs) * CONTENT_W
   }
 
   // ── Grid lines + axis ticks ──────────────────────────────────────────────
@@ -128,8 +130,7 @@ export function GanttChart({ segments }: GanttChartProps) {
   // ── End date line (only when ticket is resolved) ─────────────────────────
   const lastEnd = segments[segments.length - 1].end
   const endLine = lastEnd ? (() => {
-    // Clamp to right edge — endTs maps to exactly CHART_W, show it there
-    const ex = Math.min(tsToX(new Date(lastEnd).getTime()), CHART_W - 1)
+    const ex = tsToX(new Date(lastEnd).getTime())
     const label = new Date(lastEnd).toLocaleDateString('es', { day: 'numeric', month: 'short' })
     return (
       <g>
@@ -245,6 +246,7 @@ export function GanttChart({ segments }: GanttChartProps) {
       x1={0} y1={(i + 1) * ROW_H} x2={CHART_W} y2={(i + 1) * ROW_H}
       stroke="var(--color-border-secondary)" strokeWidth={1} />
   ))
+
 
   const ariaLabel = `Gantt: ${segments.length} segmento${segments.length !== 1 ? 's' : ''} en ${statusOrder.length} estado${statusOrder.length !== 1 ? 's' : ''}`
 
