@@ -1,12 +1,7 @@
 export function fmtDuration(ms: number): string {
-  const totalMins = Math.floor(ms / 60000)
-  if (totalMins < 60) return `${totalMins} min`
-  const hours = Math.floor(totalMins / 60)
-  const mins = totalMins % 60
-  if (hours < 24) return mins ? `${hours}h ${mins}min` : `${hours} horas`
-  const days = Math.floor(hours / 24)
-  const remHours = hours % 24
-  return remHours ? `${days} días ${remHours}h` : `${days} días`
+  const days = Math.floor(ms / 86400000)
+  if (days === 0) return '< 1 día'
+  return `${days} día${days !== 1 ? 's' : ''}`
 }
 
 export function fmtDate(iso: string | null): string {
