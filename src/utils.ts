@@ -6,9 +6,8 @@ export function fmtDuration(ms: number): string {
 
 export function fmtDate(iso: string | null): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString('es', {
+  return new Date(iso).toLocaleDateString('es', {
     day: 'numeric', month: 'short', year: 'numeric',
-    hour: 'numeric', minute: '2-digit', hour12: true,
   })
 }
 
