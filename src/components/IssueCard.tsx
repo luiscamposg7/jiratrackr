@@ -110,16 +110,8 @@ export function IssueCard({ issue }: IssueCardProps) {
           </Badge>
         )}
         <Badge color="gray" size="sm" type="color">
-          Asignado: {issue.assignee}
+          {issue.assignee}
         </Badge>
-        <Badge color="gray-blue" size="sm" type="color">
-          Creado: {fmtDate(issue.created)}
-        </Badge>
-        {issue.resolved && (
-          <Badge color="success" size="sm" type="color">
-            Resuelto: {fmtDate(issue.resolved)}
-          </Badge>
-        )}
       </div>
 
       {/* Fecha de finalización prominente */}
